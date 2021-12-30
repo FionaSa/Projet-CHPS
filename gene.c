@@ -143,6 +143,7 @@ char* generating_mRNA(const unsigned short gene_seq [], const unsigned int seq_s
         }
         j++;
     }
+    rna_seq[j] = '\0';
     return rna_seq;
 }
 
@@ -153,7 +154,7 @@ char* generating_mRNA(const unsigned short gene_seq [], const unsigned int seq_s
 * out : void
 * Detect if a gene exists in the sequence and insert it in the structure
 */
-void detecting_genes(const unsigned int gene [], const unsigned int gene_size, gene_map_t* gene_map) {
+void detecting_genes(const unsigned short gene [], const unsigned int gene_size, gene_map_t* gene_map) {
     //struct gene_map_s gene_map;
     gene_map->genes_counter = 0;
 
@@ -169,9 +170,9 @@ void detecting_genes(const unsigned int gene [], const unsigned int gene_size, g
     }
 
 
-    int start_pos = -1;
+    unsigned long long start_pos = -1;
 
-    int i = 0;
+    unsigned long long i = 0;
 
     while ((i + 6) <= gene_size) {   
 
@@ -224,7 +225,7 @@ char* generating_amino_acid_chain(const unsigned short gene_seq [], const unsign
 
     // Create and check the output
     char* aa_seq = NULL;
-    aa_seq = malloc(sizeof(*aa_seq) * (seq_size / codon_size) + 1);
+    aa_seq = malloc(sizeof(*aa_seq) * (seq_size / codon_size) +1 );
     if (!aa_seq)
         return printf("ERROR: generating_amino_acid_chain: cannot allocate memory\n"), NULL;
 
@@ -439,6 +440,7 @@ char* generating_amino_acid_chain(const unsigned short gene_seq [], const unsign
     
         temp++;
     }
+    aa_seq[temp] = '\0';
     return aa_seq;
 }
 
@@ -451,14 +453,21 @@ char* generating_amino_acid_chain(const unsigned short gene_seq [], const unsign
 * (at least 1/5th of the gene sequence's size) it returns true, else it returns false.
 * Precondition: gene_seq is of size size_sequence.
 */
-void detecting_mutations(const unsigned short gene_seq [], const unsigned long size_sequence,
+void detecting_mutations(const unsigned short gene_seq [], const unsigned long long size_sequence,
     mutation_map mut_m) {
-    unsigned long detect_mut = 0;  //Counting size of GC sequence
-    unsigned short tmp_start_mut = 0;   //stock start mutation
+    unsigned long long detect_mut = 0;  //Counting size of GC sequence
+    unsigned long long tmp_start_mut = 0;   //stock start mutation
     unsigned cmp = 0;   //counter of all mutation zones
 
+    //If problem in allocation
+    if(!mut_m.start_mut || !mut_m.end_mut || !mut_m.size){
+        mut_m.start_mut = malloc(5 * sizeof(mut_m.start_mut));
+        mut_m.start_mut = malloc(5 * sizeof(mut_m.end_mut));
+        mut_m.start_mut = malloc(5 * sizeof(mut_m.size));
+    }
+
     //Read the sequence
-    for (unsigned long i = 0; i < size_sequence; i += 2) {
+    for (unsigned long long i = 0; i < size_sequence; i += 2) {
         //Increment detect_mut if find a C or G nucl
         if (((gene_seq[i] == 0) && (gene_seq[i + 1] == 1)) ||
             ((gene_seq[i] == 1) && (gene_seq[i + 1]) == 0)) {
